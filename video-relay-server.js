@@ -25,16 +25,20 @@ wss.on("connection", (ws) => {
     ws.on("message", (data) => {
         console.log(`Received data: ${data.length} bytes`);
         
-        // Forward to all other clients
+        // Forward to all other clients (excluding sender)
+        let sentCount = 0;
         clients.forEach((client) => {
             if (client !== ws && client.readyState === WebSocket.OPEN) {
                 try {
                     client.send(data);
+                    sentCount++;
                 } catch (error) {
                     console.log("Error sending data:", error.message);
                 }
             }
         });
+        
+        console.log(`Forwarded to ${sentCount} clients`);
     });
 
     ws.on("close", () => {
